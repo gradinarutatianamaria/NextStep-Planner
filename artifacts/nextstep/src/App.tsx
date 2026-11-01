@@ -1,28 +1,10 @@
 import { type ReactNode, useEffect, useMemo, useState } from 'react';
 import {
-  ArrowLeft, ArrowRight, Bookmark, Check, Compass, Copy, RotateCcw, Sparkles,
+  ArrowLeft, ArrowRight, Bookmark, Check, Compass, Copy, FileDown, RotateCcw, Sparkles,
 } from 'lucide-react';
+import { downloadCareerPdf } from '@/lib/career-pdf';
+import type { Profile, Recommendation } from '@/lib/career-types';
 
-type Profile = {
-  education: { degree: string; field: string; courses: string };
-  interests: string[];
-  currentSkills: string[];
-  desiredSkills: string[];
-  experiences: string;
-  workStyles: string[];
-  location: string;
-  remotePreference: string;
-  industries: string[];
-};
-type Recommendation = {
-  title: string;
-  description: string;
-  rationale: string;
-  existingStrengths: string[];
-  skillsToBuild: string[];
-  nextSteps: string[];
-  score: number;
-};
 type StoredState = { profile: Profile; recommendations: Recommendation[] | null; saved: boolean; submitted: boolean };
 
 const STORE_KEY = 'nextstep-browser-demo-v1';
@@ -186,6 +168,7 @@ function App() {
   const [submitted, setSubmitted] = useState(restored?.submitted ?? false);
   const [toast, setToast] = useState('');
   const [working, setWorking] = useState(false);
+  const [pdfWorking, setPdfWorking] = useState(false);
 
   useEffect(() => {
     const data: StoredState = { profile, recommendations, saved, submitted };
@@ -259,6 +242,19 @@ function App() {
       setToast('Recommendations copied to your clipboard.');
     }
   }
+  async function downloadPdf() {
+    if (!recommendations || pdfWorking) return;
+    setPdfWorking(true);
+    try {
+      await downloadCareerPdf(profile, recommendations);
+      setToast('Your career plan PDF has been downloaded.');
+    } catch (error) {
+      console.error('Unable to create the career plan PDF', error);
+      setToast('We could not create the PDF. Please try again.');
+    } finally {
+      setPdfWorking(false);
+    }
+  }
   function editAnswers() {
     setSubmitted(false);
     setStep(0);
@@ -292,6 +288,8 @@ function App() {
             saved={saved}
             onSave={() => { setSaved((value) => !value); setToast(saved ? 'Saved recommendations removed.' : 'Recommendations saved on this device.'); }}
             onCopy={copyRecommendations}
+            onDownload={downloadPdf}
+            pdfWorking={pdfWorking}
             onEdit={editAnswers}
             onRestart={restart}
           />
@@ -455,8 +453,8 @@ function PreferencesStep({ profile, onToggle, onChange }: {
   </>;
 }
 
-function Results({ recommendations, saved, onSave, onCopy, onEdit, onRestart }: {
-  recommendations: Recommendation[]; saved: boolean; onSave: () => void; onCopy: () => void; onEdit: () => void; onRestart: () => void;
+function Results({ recommendations, saved, onSave, onCopy, onDownload, pdfWorking, onEdit, onRestart }: {
+  recommendations: Recommendation[]; saved: boolean; onSave: () => void; onCopy: () => void; onDownload: () => void; pdfWorking: boolean; onEdit: () => void; onRestart: () => void;
 }) {
   return <div className="fade-in">
     <section className="result-header">
@@ -466,6 +464,10 @@ function Results({ recommendations, saved, onSave, onCopy, onEdit, onRestart }: 
       <div className="result-toolbar">
         <button className="btn btn-primary" onClick={onSave} data-testid="button-save-recommendations">{saved ? <Check size={15} /> : <Bookmark size={15} />}{saved ? 'Saved on this device' : 'Save recommendations'}</button>
         <button className="btn btn-quiet" onClick={onCopy} data-testid="button-copy-recommendations"><Copy size={15} /> Copy paths</button>
+        <button className="btn btn-quiet" onClick={onDownload} disabled={pdfWorking} data-testid="button-download-pdf">
+          {pdfWorking ? <span className="loading-dot" /> : <FileDown size={15} />}
+          {pdfWorking ? 'Preparing PDF' : 'Download PDF'}
+        </button>
         <button className="btn btn-quiet" onClick={onEdit} data-testid="button-edit-answers"><ArrowLeft size={15} /> Edit answers</button>
       </div>
     </section>
