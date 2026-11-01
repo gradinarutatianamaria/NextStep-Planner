@@ -1,6 +1,6 @@
 import { type ReactNode, useEffect, useMemo, useState } from 'react';
 import {
-  ArrowLeft, ArrowRight, Bookmark, Check, Compass, Copy, FileDown, RotateCcw, Sparkles,
+  ArrowLeft, ArrowRight, Bookmark, Check, Copy, FileDown, RotateCcw, Sparkles,
 } from 'lucide-react';
 import { downloadCareerPdf } from '@/lib/career-pdf';
 import type { Profile, Recommendation } from '@/lib/career-types';
@@ -266,7 +266,16 @@ function App() {
   return (
     <div className="app-shell">
       <header className="topbar">
-        <div className="brand" data-testid="text-brand"><span className="brand-mark"><Compass size={18} strokeWidth={2.2} /></span>nextstep</div>
+        <div className="brand" data-testid="text-brand">
+          <span className="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="21" height="21" fill="none">
+              <path d="M3.5 20H8v-4h5v-4h5V8h2.5" stroke="currentColor" strokeWidth="1.55" strokeLinecap="round" strokeLinejoin="round" />
+              <circle cx="12.5" cy="4.8" r="1.45" fill="currentColor" />
+              <path d="m12.1 6.5-2 4.2 3.1 1.8 2.3-3.6m-3-2.2-3.2 2.1m.8 2-1.1 4.9m1.1-4.9 4.2 1.2" stroke="currentColor" strokeWidth="1.55" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </span>
+          nextstep
+        </div>
         <div className="top-meta">A small step toward a clearer direction</div>
       </header>
       <main className="main-wrap">
