@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "NextStep"
+description = "A supportive career exploration app for early-career professionals. Users build a short profile of their education, interests, skills, experience, and work preferences, then explore tailored career paths and practical next steps without creating an account."
+version = "1.0.0"
+id = "artifacts/nextstep"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 20904
+
+[services.development]
+run = "pnpm --filter @workspace/nextstep run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/nextstep", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/nextstep/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "20904"
+BASE_PATH = "/"
