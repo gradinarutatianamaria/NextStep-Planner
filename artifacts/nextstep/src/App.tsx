@@ -2,6 +2,7 @@ import { type ReactNode, useEffect, useMemo, useState } from 'react';
 import {
   ArrowLeft, ArrowRight, Bookmark, Check, Copy, FileDown, RotateCcw, Sparkles,
 } from 'lucide-react';
+import { buildRecommendations } from '@/lib/career-matching';
 import { downloadCareerPdf } from '@/lib/career-pdf';
 import type { Profile, Recommendation } from '@/lib/career-types';
 
@@ -120,50 +121,15 @@ function profileFromStored(): StoredState | null {
     return null;
   }
 }
-function buildRecommendations(profile: Profile): Recommendation[] {
-  const signals = [
-    ...profile.interests, ...profile.currentSkills, ...profile.desiredSkills,
-    ...profile.workStyles, ...profile.industries, profile.education.field,
-    profile.education.courses, profile.experiences,
-  ].join(' ').toLowerCase();
-  const ranked = paths.map((path) => {
-    const found = path.signals.filter((signal) => signals.includes(signal.toLowerCase()));
-    const styleMatches = path.signals.filter((signal) => profile.workStyles.some((style) => signal.toLowerCase().includes(style.toLowerCase())));
-    const score = Math.min(94, 54 + found.length * 7 + Math.min(styleMatches.length, 2) * 3);
-    const existing = [...profile.currentSkills, ...profile.desiredSkills, ...listFrom(profile.experiences)]
-      .filter((item, index, all) => all.findIndex((other) => other.toLowerCase() === item.toLowerCase()) === index)
-      .filter((item) => path.signals.some((signal) => signal.toLowerCase().includes(item.toLowerCase()) || item.toLowerCase().includes(signal.toLowerCase())))
-      .slice(0, 4);
-    const strengths = existing.length ? existing : path.strengths.slice(0, 2);
-    const rationale = found.length
-      ? `This path connects with ${found.slice(0, 3).join(', ')}${found.length > 3 ? ' and other signals in your answers' : ''}. That is a useful reason to explore it—not a prediction of how you would perform.`
-      : `Your answers do not point strongly to one specific role, but this can still be a useful option to compare against your interests and preferred work style.`;
-    const searchContext = [
-      profile.location ? `near ${profile.location}` : '',
-      profile.industries.length ? `in ${profile.industries.slice(0, 2).join(' or ')} settings` : '',
-      profile.remotePreference && profile.remotePreference !== 'Flexible'
-        ? `with ${profile.remotePreference.toLowerCase()} work options`
-        : '',
-    ].filter(Boolean);
-    const nextSteps = searchContext.length
-      ? [
-          ...path.next.slice(0, 2),
-          `Search for ${path.title.toLowerCase()} roles ${searchContext.join(', ')} and compare current employer requirements.`,
-        ]
-      : path.next;
-    return {
-      title: path.title, description: path.description, rationale,
-      existingStrengths: strengths, skillsToBuild: path.build, nextSteps, score,
-    };
-  });
-  return ranked.sort((a, b) => b.score - a.score).slice(0, 4);
-}
-
 function App() {
   const restored = useMemo(profileFromStored, []);
   const [profile, setProfile] = useState<Profile>(restored?.profile ?? blankProfile);
   const [step, setStep] = useState(0);
-  const [recommendations, setRecommendations] = useState<Recommendation[] | null>(restored?.recommendations ?? null);
+  const [recommendations, setRecommendations] = useState<Recommendation[] | null>(
+    restored?.submitted
+      ? buildRecommendations(restored.profile)
+      : restored?.recommendations ?? null,
+  );
   const [saved, setSaved] = useState(restored?.saved ?? false);
   const [submitted, setSubmitted] = useState(restored?.submitted ?? false);
   const [toast, setToast] = useState('');
@@ -497,7 +463,9 @@ function RecommendationCard({ recommendation, index }: { recommendation: Recomme
         <h3 className="role-title" data-testid={`text-role-title-${index + 1}`}>{recommendation.title}</h3>
         <p className="role-description">{recommendation.description}</p>
       </div>
-      <div className="fit-label"><strong>{recommendation.score}%</strong> signal overlap</div>
+      <div className="fit-label">
+        <strong>{recommendation.score}%</strong> signal overlap
+      </div>
     </div>
     <div className="recommend-details">
       <div className="detail-block">
@@ -506,7 +474,11 @@ function RecommendationCard({ recommendation, index }: { recommendation: Recomme
       </div>
       <div className="detail-block">
         <h4>Strengths you can bring</h4>
-        <div className="tag-row">{recommendation.existingStrengths.map((skill) => <span className="skill-tag" key={skill}>{skill}</span>)}</div>
+        {recommendation.existingStrengths.length ? (
+          <div className="tag-row">{recommendation.existingStrengths.map((skill) => <span className="skill-tag" key={skill}>{skill}</span>)}</div>
+        ) : (
+          <p>Add current skills to see strengths connected to your answers.</p>
+        )}
       </div>
       <div className="detail-block">
         <h4>Skills to build</h4>
