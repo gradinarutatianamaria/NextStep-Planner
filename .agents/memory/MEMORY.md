@@ -1,0 +1,1 @@
+- [pnpm audit fixes](pnpm-audit-fixes.md) — inspect generated workspace overrides for config rewrites and unintended major-version upgrades.
