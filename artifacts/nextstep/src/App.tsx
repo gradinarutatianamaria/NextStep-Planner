@@ -407,7 +407,7 @@ function PreferencesStep({ profile, onToggle, onChange }: {
       <span className="field-label">What kinds of work do you tend to enjoy? <span className="field-hint">Choose more than one if it fits.</span></span>
       <div className="choice-grid">
         {workStyles.map((item) => <button type="button" key={item.title} className={`choice-card ${profile.workStyles.includes(item.title) ? 'selected' : ''}`} onClick={() => onToggle('workStyles', item.title)} aria-pressed={profile.workStyles.includes(item.title)} data-testid={`button-style-${item.title.toLowerCase().replace(/[^a-z]+/g, '-')}`}>
-          <span className="choice-title"><span className="mono" style={{ color: '#bd654b', marginRight: 9, fontSize: 10 }}>{item.icon}</span>{item.title}</span><span className="choice-description">{item.detail}</span>
+          <span className="choice-title"><span className="mono" style={{ color: 'hsl(var(--accent))', marginRight: 9, fontSize: 10 }}>{item.icon}</span>{item.title}</span><span className="choice-description">{item.detail}</span>
         </button>)}
       </div>
     </div>
