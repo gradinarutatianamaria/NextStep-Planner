@@ -234,10 +234,10 @@ function App() {
       <header className="topbar">
         <div className="brand" data-testid="text-brand">
           <span className="brand-mark" aria-hidden="true">
-            <svg viewBox="0 0 24 24" width="21" height="21" fill="none">
-              <path d="M3.5 20H8v-4h5v-4h5V8h2.5" stroke="currentColor" strokeWidth="1.55" strokeLinecap="round" strokeLinejoin="round" />
-              <circle cx="12.5" cy="4.8" r="1.45" fill="currentColor" />
-              <path d="m12.1 6.5-2 4.2 3.1 1.8 2.3-3.6m-3-2.2-3.2 2.1m.8 2-1.1 4.9m1.1-4.9 4.2 1.2" stroke="currentColor" strokeWidth="1.55" strokeLinecap="round" strokeLinejoin="round" />
+            <svg viewBox="0 0 32 32" width="25" height="25" fill="none">
+              <path d="M3.5 27h7v-5h6v-5h6v-5h6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              <circle cx="12.2" cy="6.5" r="2.1" fill="#dceafa" />
+              <path d="m12 9.4 1.3 6.3m-.9-5.2-2.9 3.7m2.9-3.7 5.4-1.3m-4.5 6.5-2.7 4.7-.8 1.6m3.5-6.3 5.2 1.4 1.6-.1" stroke="#dceafa" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </span>
           nextstep
